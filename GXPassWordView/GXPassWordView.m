@@ -8,8 +8,9 @@
 
 @interface GXPassWordView () <UITextFieldDelegate>
 
+@property (nonatomic, strong, readwrite) NSString *text; //!< 用户输入的字符串
 @property (nonatomic, strong) CALayer *cursorLayer; //!< 光标
-@property (nonatomic, strong) NSMutableArray <CALayer *>*dotArray; //!< 用于存放黑色的点点
+@property (nonatomic, strong) NSMutableArray <UIView *>*dotArray; //!< 用于存放黑色的点点
 @property (nonatomic, strong) NSMutableArray <UILabel *>*passwordLabelArr; //!< 显示密码的label
 @property (nonatomic, strong) NSMutableArray <NSString *>*characterArray; //!< 用户输入的所有字符的集合
 
@@ -25,7 +26,7 @@
         self.cursorColor = [UIColor redColor];
         self.dotColor = [UIColor grayColor];
         self.textColor = [UIColor blackColor];
-        self.textFont = [UIFont fontWithName:@"HelveticaNeue-Medium" size:18];
+        self.textFont = [UIFont systemFontOfSize:18];
     }
     return self;
 }
@@ -34,6 +35,11 @@
 
 - (void)installView {
     [self configSubviews];
+}
+
+- (void)clear {
+    [self.characterArray removeAllObjects];
+    [self textDidChanged:nil];
 }
 
 - (NSString *)text {
@@ -90,7 +96,7 @@
 
 /**
  添加一个字符
-
+ 
  @param text 用户最新输入的字符
  */
 - (void)insertText:(NSString *)text {
@@ -149,7 +155,7 @@
  更新光标位置
  */
 - (void)updateCursorIfNeeded {
-    if (self.characterArray.count == _passwordCount || !self.isFirstResponder) {
+    if (self.characterArray.count == _passwordCount) {
         self.cursorLayer.hidden = YES;
     } else {
         self.cursorLayer.hidden = NO;
@@ -164,8 +170,8 @@
     
     // 隐藏圆点
     if (index < self.dotArray.count) {
-        CALayer *dotLayer = self.dotArray[index];
-        dotLayer.hidden = YES;
+        UIView *dotView = self.dotArray[index];
+        dotView.hidden = YES;
     }
     
     // 更新光标位置.并且取消layer的隐式动画.
@@ -184,9 +190,9 @@
     self.passwordLabelArr = [NSMutableArray arrayWithCapacity:_passwordCount];
     // 生成中间的点和显示密码的label
     for (int i = 0; i < _passwordCount; i++) {
-        CALayer *dotLayer = [self createdotLayer];
-        [self.layer addSublayer:dotLayer];
-        [self.dotArray addObject:dotLayer];
+        UIView *dotView = [self createdotView];
+        [self addSubview:dotView];
+        [self.dotArray addObject:dotView];
         
         UILabel *pwLabel = [self createPasswordLabel];
         [self addSubview:pwLabel];
@@ -204,18 +210,18 @@
         }
         
         UILabel *pwLabel = self.passwordLabelArr[i];
-        CALayer *dotLayer = self.dotArray[i];
+        UIView *dotView = self.dotArray[i];
         
         pwLabel.frame = CGRectMake(itemW*i, 0, itemW, itemH);
-        dotLayer.frame = CGRectMake(itemW*i + (itemW-_dotRadius*2)/2.0, (itemH - _dotRadius*2)/2.0, _dotRadius*2, _dotRadius*2);
+        dotView.frame = CGRectMake(itemW*i + (itemW-_dotRadius*2)/2.0, (itemH - _dotRadius*2)/2.0, _dotRadius*2, _dotRadius*2);
     }
 }
-- (CALayer *)createdotLayer {
-    CALayer *dotLayer = [CALayer new];
-    dotLayer.backgroundColor = self.dotColor.CGColor;
-    dotLayer.cornerRadius = _dotRadius;
-    dotLayer.hidden = NO;
-    return dotLayer;
+- (UIView *)createdotView {
+    UIView *dotView = [UIView new];
+    dotView.backgroundColor = self.dotColor;
+    dotView.layer.cornerRadius = _dotRadius;
+    dotView.hidden = NO;
+    return dotView;
 }
 - (UILabel *)createPasswordLabel {
     UILabel *pwLabel = [[UILabel alloc] init];

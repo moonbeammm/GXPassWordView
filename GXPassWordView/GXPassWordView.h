@@ -5,7 +5,6 @@
 //
 //  https://www.tapd.cn/20055921/prong/stories/view/1120055921001137346
 //  密码输入框
-//  自定义密码个数
 
 #import <UIKit/UIKit.h>
 
@@ -13,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GXPassWordView : UIView <UIKeyInput,UITextInputTraits>
 
-@property (nonatomic, strong) NSString *text; //!< 用户输入的字符串
+@property (nonatomic, strong, readonly) NSString *text; //!< 用户输入的字符串
 
 /*****外界可自定义的属性******/
 @property (nonatomic, assign) NSInteger passwordCount; //!< 密码个数.默认4个
@@ -28,6 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
  加载内容.只有调了这个方法才会添加子视图.
  */
 - (void)installView;
+/**
+ 清空用户输入的密码
+ */
+- (void)clear;
 /**
  用户输入的文本改变的回调
  */
